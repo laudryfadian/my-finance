@@ -3,7 +3,10 @@
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_finance/helper/auth.dart';
+import 'package:my_finance/helper/dialog.dart';
 import 'package:my_finance/screen/home/home.dart';
+import 'package:my_finance/screen/register/register.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -13,33 +16,20 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  void showError(BuildContext context, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ErrorDialog(errorMessage: errorMessage);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    /*
-    ------------------------
-    https://capekngoding.com
-    ------------------------
-    Starring:
-    Name: Deny Ocr
-    Youtube: https://www.youtube.com/c/CapekNgoding
-    ------------------------
-    [1] Update pubspec.yaml
-    blur:
-    google_fonts:
-    
-    [2] Import
-    import 'package:blur/blur.dart';
-    import 'package:google_fonts/google_fonts.dart';
-    
-    ------------------------
-    Code generation with snippets can be a good solution for you or it can kill you.
-    A basic understanding of Dart and Flutter is required.
-    Keep it in mind, Our snippet can't generate many files yet.
-    So, all of our snippets are put in one file which is not best practice.
-    You need to do the optimization yourself, and at least you are familiar with using Flutter.
-    ------------------------
-    */
-
     return Theme(
       data: ThemeData(
         primaryColor: Colors.blueGrey,
@@ -127,6 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
                             cursorColor: Colors.blueGrey,
+                            controller: _emailController,
                             onChanged: (value) {
                               //
                             },
@@ -144,7 +135,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               textInputAction: TextInputAction.done,
                               obscureText: true,
                               cursorColor: Colors.blueGrey,
-                              onChanged: (value) {
+                              controller: _passwordController,
+                              onChanged: (value) async {
                                 //
                               },
                               decoration: const InputDecoration(
@@ -160,12 +152,24 @@ class _LoginScreenState extends State<LoginScreen> {
                           Hero(
                             tag: "login_btn",
                             child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const HomeScreen()),
-                                );
+                              onPressed: () async {
+                                var email = _emailController.text;
+                                var password = _passwordController.text;
+
+                                final isAuthenticated =
+                                    await authenticateUser(email, password);
+                                if (isAuthenticated) {
+                                  // ignore: use_build_context_synchronously
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const HomeScreen()),
+                                  );
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  showError(context, "gagal login");
+                                }
                               },
                               child: Text(
                                 "Login".toUpperCase(),
@@ -175,6 +179,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ),
+                    SizedBox(height: 30),
+                    InkWell(
+                        child: Text("register"),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterScreen()),
+                          );
+                        }),
                   ],
                 ),
               ),

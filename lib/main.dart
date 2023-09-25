@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:my_finance/helper/database.dart';
 import 'package:my_finance/screen/login/login.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDatabase();
   runApp(const MyApp());
 }
 
