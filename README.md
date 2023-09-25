@@ -1,6 +1,6 @@
 # my_finance
 
-A new Flutter project.
+this app can handle your balance cashin and cashout
 
 ## Getting Started
 
