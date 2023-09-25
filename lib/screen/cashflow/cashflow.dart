@@ -2,6 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:my_finance/helper/balance_detail.dart';
+import 'package:my_finance/model/balance_detail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CashflowScreen extends StatefulWidget {
   const CashflowScreen({Key? key}) : super(key: key);
@@ -14,53 +17,26 @@ class _CashflowScreenState extends State<CashflowScreen> {
   String outArrow = "https://cdn-icons-png.flaticon.com/512/4440/4440649.png";
   String inArrow = "https://cdn-icons-png.flaticon.com/512/1006/1006646.png";
 
+  List<BalanceDetail> bdetail = [];
+
+  @override
+  void initState() {
+    fetch();
+    super.initState();
+  }
+
+  void fetch() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int idBalance = prefs.getInt('idBalance') ?? 0;
+
+    List<BalanceDetail> balance = await getBalanceDetailByIdUser(idBalance);
+    setState(() {
+      bdetail = balance.reversed.toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    List categories = [
-      {
-        "type": "in",
-        "nominal": 2000000,
-        "desc": "buat makan",
-        "date": "21-01-2021"
-      },
-      {
-        "type": "in",
-        "nominal": 100000,
-        "desc": "buat makan",
-        "date": "21-01-2021"
-      },
-      {
-        "type": "out",
-        "nominal": 20000,
-        "desc": "buat makan",
-        "date": "21-01-2021"
-      },
-      {
-        "type": "in",
-        "nominal": 50000,
-        "desc": "buat makan",
-        "date": "21-01-2021"
-      },
-      {
-        "type": "in",
-        "nominal": 60000,
-        "desc": "buat makanssssssssss ssss",
-        "date": "21-01-2021"
-      },
-      {
-        "type": "out",
-        "nominal": 20000,
-        "desc": "buat makan",
-        "date": "21-01-2021"
-      },
-      {
-        "type": "out",
-        "nominal": 20000,
-        "desc": "buat makan",
-        "date": "21-01-2021"
-      },
-    ];
-
     return Scaffold(
       backgroundColor: const Color(0xffF3F5F9),
       appBar: AppBar(
@@ -69,16 +45,16 @@ class _CashflowScreenState extends State<CashflowScreen> {
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: 15),
         child: ListView.builder(
-          itemCount: categories.length,
+          itemCount: bdetail.length,
           shrinkWrap: true,
           physics: ScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
-            var item = categories[index];
+            var item = bdetail[index];
             String formattedNominal = NumberFormat.currency(
               locale: 'id_ID', // Sesuaikan dengan preferensi Anda
               symbol: 'Rp ',
               decimalDigits: 0,
-            ).format(item['nominal']);
+            ).format(item.nominal);
 
             return Container(
               height: 100.0,
@@ -121,8 +97,8 @@ class _CashflowScreenState extends State<CashflowScreen> {
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 22),
                           ),
-                          Text(item['desc']),
-                          Text(item['date']),
+                          Text(item.desc),
+                          Text(item.date),
                         ],
                       ),
                     ),
@@ -130,7 +106,7 @@ class _CashflowScreenState extends State<CashflowScreen> {
                   Container(
                     padding: EdgeInsets.only(right: 10),
                     child: Image.network(
-                      item['type'] == "in" ? inArrow : outArrow,
+                      item.type == "in" ? inArrow : outArrow,
                       width: 70,
                       height: 70,
                       fit: BoxFit.cover,

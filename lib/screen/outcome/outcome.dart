@@ -3,7 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:my_finance/helper/currency.dart';
+import 'package:my_finance/helper/balance_detail.dart';
+import 'package:my_finance/helper/dialog.dart';
+import 'package:my_finance/model/balance_detail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OutcomeScreen extends StatefulWidget {
   const OutcomeScreen({Key? key}) : super(key: key);
@@ -17,7 +20,6 @@ class _OutcomeScreenState extends State<OutcomeScreen> {
   DateTime? _selectedDate;
 
   TextEditingController _moneyController = TextEditingController();
-  final Currency _currencyFormatter = Currency();
 
   TextEditingController _textController = TextEditingController();
 
@@ -33,6 +35,61 @@ class _OutcomeScreenState extends State<OutcomeScreen> {
         _selectedDate = picked;
         _dateController.text = DateFormat('yyyy-MM-dd').format(_selectedDate!);
       });
+  }
+
+  void showError(BuildContext context, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ErrorDialog(errorMessage: errorMessage);
+      },
+    );
+  }
+
+  void showSuccess(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SuccessDialog(
+            message: 'Selamat, Anda berhasil memasukkan outcome.');
+      },
+    );
+  }
+
+  clearAll() {
+    setState(() {
+      _dateController = TextEditingController();
+      _textController = TextEditingController();
+      _moneyController = TextEditingController();
+    });
+  }
+
+  createOutcome() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final date = _dateController.text;
+      final desc = _textController.text;
+      final nominal = _moneyController.text;
+      if (date.isEmpty || desc.isEmpty || nominal.isEmpty) {
+        return showError(context, "harap isi semuanya");
+      }
+
+      int idBalance = prefs.getInt('idBalance') ?? 0;
+
+      final balanceDetail = BalanceDetail(
+          idBalance: idBalance,
+          type: "out",
+          nominal: double.parse(nominal),
+          desc: desc,
+          date: date);
+      await addBalanceDetail(balanceDetail);
+
+      clearAll();
+      // ignore: use_build_context_synchronously
+      return showSuccess(context);
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -68,7 +125,6 @@ class _OutcomeScreenState extends State<OutcomeScreen> {
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.digitsOnly,
-                  _currencyFormatter,
                 ],
                 decoration: InputDecoration(
                   labelText: 'Enter Amount',
@@ -94,11 +150,7 @@ class _OutcomeScreenState extends State<OutcomeScreen> {
                     onPrimary: Colors.white, // Background color
                   ),
                   onPressed: () {
-                    setState(() {
-                      _dateController = TextEditingController();
-                      _textController = TextEditingController();
-                      _moneyController = TextEditingController();
-                    });
+                    clearAll();
                   },
                   child: Text('Reset'),
                 ),
@@ -108,7 +160,9 @@ class _OutcomeScreenState extends State<OutcomeScreen> {
                     primary: Colors.green,
                     onPrimary: Colors.white, // Background color
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    createOutcome();
+                  },
                   child: Text('Save'),
                 ),
               ],

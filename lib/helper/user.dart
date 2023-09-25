@@ -12,3 +12,13 @@ Future<int> addUser(User user) async {
 
   return result;
 }
+
+Future<void> updateUser(User user) async {
+  final Database db = await initializeDatabase();
+  await db.update(
+    'users',
+    user.toMap(),
+    where: "id = ?",
+    whereArgs: [user.id],
+  );
+}

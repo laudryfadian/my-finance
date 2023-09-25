@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:my_finance/helper/balance_detail.dart';
-import 'package:my_finance/helper/currency.dart';
 import 'package:my_finance/helper/dialog.dart';
 import 'package:my_finance/model/balance_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,7 +20,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
   DateTime? _selectedDate;
 
   TextEditingController _moneyController = TextEditingController();
-  final Currency _currencyFormatter = Currency();
+  // final Currency _currencyFormatter = Currency();
 
   TextEditingController _textController = TextEditingController();
 
@@ -127,7 +126,6 @@ class _IncomeScreenState extends State<IncomeScreen> {
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.digitsOnly,
-                  _currencyFormatter,
                 ],
                 decoration: InputDecoration(
                   labelText: 'Enter Amount',
