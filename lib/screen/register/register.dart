@@ -1,8 +1,11 @@
 // ignore_for_file: camel_case_types, prefer_typing_uninitialized_variables
 
 import 'package:flutter/material.dart';
+import 'package:my_finance/helper/auth.dart';
+import 'package:my_finance/helper/balance.dart';
 import 'package:my_finance/helper/dialog.dart';
 import 'package:my_finance/helper/user.dart';
+import 'package:my_finance/model/balance.dart';
 import 'package:my_finance/model/user.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -56,15 +59,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
           return showError(context, "harap isi semuanya");
         }
 
+        final cek = await checkEmail(email);
+        if (cek) {
+          // ignore: use_build_context_synchronously
+          return showError(context, "email sudah terdaftar");
+        }
+
         final user =
             User(nama: nama, email: email, password: password, nim: nim);
-        await addUser(user);
+        final resultUser = await addUser(user);
 
+        var balance = Balance(idUser: resultUser, nominal: 0);
+        await addBalance(balance);
         clearAll();
         // ignore: use_build_context_synchronously
         return showSuccess(context);
       } catch (e) {
-        print(e);
+        // ignore: use_build_context_synchronously
+        showError(context, e.toString());
       }
     }
 
