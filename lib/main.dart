@@ -9,28 +9,25 @@ void main() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final int? userId = prefs.getInt("id");
   await initializeDatabase();
-  runApp(MaterialApp(
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
-      useMaterial3: true,
-    ),
-    home: userId != null ? const HomeScreen() : const LoginScreen(),
+  runApp(MyApp(
+    userId: userId,
   ));
 }
 
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  final int? userId;
+  const MyApp({super.key, this.userId});
 
-//   // This widget is the root of your application.
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Demo',
-//       theme: ThemeData(
-//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
-//         useMaterial3: true,
-//       ),
-//       home: const LoginScreen(),
-//     );
-//   }
-// }
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
+        useMaterial3: true,
+      ),
+      home: userId != null ? HomeScreen() : LoginScreen(),
+    );
+  }
+}

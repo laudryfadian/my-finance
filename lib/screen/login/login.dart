@@ -181,7 +181,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     SizedBox(height: 30),
                     InkWell(
-                        child: Text("register"),
+                        child: Text(
+                          "Register",
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
                         onTap: () {
                           Navigator.push(
                             context,
